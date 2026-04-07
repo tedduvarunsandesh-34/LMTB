@@ -1,3 +1,20 @@
+from bot import (
+    aria2, 
+    aria2_options, 
+    aria2c_global, 
+    config_dict, 
+    LOGGER, 
+    download_dict, 
+    download_dict_lock, 
+    queue_dict_lock, 
+    non_queued_dl
+)
+from bot.helper.mirror_utils.status_utils.aria2_status import Aria2Status
+from bot.helper.telegram_helper.message_utils import sendMessage, sendStatusMessage
+from bot.helper.ext_utils.bot_utils import sync_to_async, bt_selection_buttons
+from bot.helper.mirror_utils.status_utils.queue_utils import is_queued
+from bot.helper.ext_utils.files_utils import aiopath, aioremove
+
 async def add_aria2c_download(link, path, listener, filename, header, ratio, seed_time):
     # --- FIXED: REDIRECT MEGA LINKS ---
     if "mega.nz" in link:
@@ -16,7 +33,8 @@ async def add_aria2c_download(link, path, listener, filename, header, ratio, see
         a2c_opt['seed-ratio'] = ratio
     if seed_time:
         a2c_opt['seed-time'] = seed_time
-    if TORRENT_TIMEOUT := config_dict['TORRENT_TIMEOUT']:
+    
+    if TORRENT_TIMEOUT := config_dict.get('TORRENT_TIMEOUT'):
         a2c_opt['bt-stop-timeout'] = f'{TORRENT_TIMEOUT}'
     
     added_to_queue, event = await is_queued(listener.uid)
@@ -58,7 +76,7 @@ async def add_aria2c_download(link, path, listener, filename, header, ratio, see
 
     await listener.onDownloadStart()
 
-    if not added_to_queue and (not listener.select or not config_dict['BASE_URL']):
+    if not added_to_queue and (not listener.select or not config_dict.get('BASE_URL')):
         await sendStatusMessage(listener.message)
     elif listener.select and download.is_torrent and not download.is_metadata:
         if not added_to_queue:
