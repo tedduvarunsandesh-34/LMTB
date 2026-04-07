@@ -3,7 +3,7 @@ import re
 from logging import getLogger, ERROR
 from time import time
 from asyncio import Lock
-from pyrogram import Client
+from pyrogram import Client, enums
 
 from bot import LOGGER, download_dict, download_dict_lock, non_queued_dl, queue_dict_lock, bot, user, IS_PREMIUM_USER
 from bot.helper.mirror_utils.status_utils.telegram_status import TelegramStatus
@@ -22,7 +22,7 @@ class TelegramDownloadHelper:
         self.name = ""
         self.__processed_bytes = 0
         self.__start_time = time()
-        self.__listener = listener
+        self.__ listener = listener
         self.__client = bot
         self.__decrypter = None
         self.__id = ""
@@ -110,21 +110,15 @@ class TelegramDownloadHelper:
         if message.media:
             media = getattr(message, message.media.value, None)
         
-        # 1. Attempt to download direct Telegram Media
+        # 1. Handle Telegram Media
         if media is not None and hasattr(media, 'file_unique_id'):
             async with global_lock:
                 download = media.file_unique_id not in GLOBAL_GID
 
             if download:
-                if filename == "":
-                    name = media.file_name if hasattr(media, 'file_name') else 'None'
-                else:
-                    name = filename
-                
-                if not path.endswith('/'):
-                    path += '/'
+                name = filename or (media.file_name if hasattr(media, 'file_name') else 'None')
+                if not path.endswith('/'): path += '/'
                 path = path + name
-                
                 size = media.file_size
                 gid = media.file_unique_id
 
@@ -137,17 +131,16 @@ class TelegramDownloadHelper:
                     await sendMessage(self.__listener.message, limit_exceeded)
                     await delete_links(self.__listener.message)
                     return
+                
                 added_to_queue, event = await is_queued(self.__listener.uid)
                 if added_to_queue:
-                    LOGGER.info(f"Added to Queue/Download: {name}")
                     async with download_dict_lock:
                         download_dict[self.__listener.uid] = QueueStatus(name, size, gid, self.__listener, 'dl')
                     await self.__listener.onDownloadStart()
                     await sendStatusMessage(self.__listener.message)
                     await event.wait()
                     async with download_dict_lock:
-                        if self.__listener.uid not in download_dict:
-                            return
+                        if self.__listener.uid not in download_dict: return
                     from_queue = True
                 else:
                     from_queue = False
@@ -156,20 +149,32 @@ class TelegramDownloadHelper:
             else:
                 await self.__onDownloadError('File already being downloaded!')
         
-        # 2. If no media, search for a Link in the text and redirect to Aria2
+        # 2. Extract Original Link from text/preview and redirect
         else:
-            msg_content = message.text or message.caption or ""
-            link_search = re.search(r'(https?://[^\s]+)', msg_content)
+            original_link = None
+            entities = message.entities or message.caption_entities
+            text = message.text or message.caption or ""
+
+            if entities:
+                for ent in entities:
+                    if ent.type == enums.MessageEntityType.URL:
+                        original_link = text[ent.offset:ent.offset+ent.length]
+                        break
+                    elif ent.type == enums.MessageEntityType.TEXT_LINK:
+                        original_link = ent.url
+                        break
             
-            if link_search:
-                link = link_search.group(1)
-                LOGGER.info(f"Link found in preview, redirecting to Aria2: {link}")
-                
-                # Import downloader dynamically to avoid circular imports
+            if not original_link:
+                link_search = re.search(r'(https?://[^\s]+)', text)
+                if link_search:
+                    original_link = link_search.group(1)
+
+            if original_link:
+                LOGGER.info(f"Taking original link: {original_link}")
                 from bot.helper.mirror_utils.download_utils.aria2_download import add_aria2c_download
-                return await add_aria2c_download(link, path, self.__listener, filename, None, None, None)
+                return await add_aria2c_download(original_link, path, self.__listener, filename, None, None, None)
             
-            await self.__onDownloadError('No valid media or link found in the replied message.')
+            await self.__onDownloadError('No valid media or link found in the message.')
 
     async def cancel_download(self):
         self.__is_cancelled = True
