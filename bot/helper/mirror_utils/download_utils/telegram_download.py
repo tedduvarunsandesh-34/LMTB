@@ -105,9 +105,12 @@ class TelegramDownloadHelper:
             self.__client = None
             self.__decrypter = decrypter
 
-        media = getattr(message, message.media.value) if message.media else None
+        # Fix for Attribute Error
+        media = None
+        if message.media:
+            media = getattr(message, message.media.value, None)
         
-        if media is not None:
+        if media is not None and hasattr(media, 'file_unique_id'):
             async with global_lock:
                 download = media.file_unique_id not in GLOBAL_GID
 
@@ -116,7 +119,12 @@ class TelegramDownloadHelper:
                     name = media.file_name if hasattr(media, 'file_name') else 'None'
                 else:
                     name = filename
-                    path = path + name
+                
+                # Correct Path Handling
+                if not path.endswith('/'):
+                    path += '/'
+                path = path + name
+                
                 size = media.file_size
                 gid = media.file_unique_id
 
@@ -148,7 +156,7 @@ class TelegramDownloadHelper:
             else:
                 await self.__onDownloadError('File already being downloaded!')
         else:
-            await self.__onDownloadError('No valid media type in the replied message')
+            await self.__onDownloadError('No valid media type in the replied message (Link Previews are not downloadable)')
 
     async def cancel_download(self):
         self.__is_cancelled = True
