@@ -2,11 +2,11 @@
 class LMTBStyle:
     # ----------------------
     # async def start(client, message) ---> __main__.py
-    ST_BN1_NAME = 'Repo'
-    ST_BN1_URL = 'https://github.com/HarixTGX/LMTB'
-    ST_BN2_NAME = 'Updates'
-    ST_BN2_URL = 'https://t.me/OMGxCloud'
-    ST_MSG = '''<i>This bot can mirror all your links|files|torrents to Google Drive or any rclone cloud or to telegram or to ddl servers.</i>
+    ST_BN1_NAME = "📁 Repo"
+    ST_BN1_URL = "https://t.me/ind_gamer_1"
+    ST_BN2_NAME = "🔔 Updates"
+    ST_BN2_URL = "https://t.me/All_animes_in_teluguu_vs"
+    ST_MSG = '''<i>This bot can mirror all your links|files|torrents to Google Drive or any rclone cloud or to telegram or to ddl servers BOT BY GOVAR X.</i>
 <b>Type {help_command} to get a list of available commands</b>'''
     ST_BOTPM = '''<i>Now, This bot will send all your files and links here. Start Using ...</i>'''
     ST_UNAUTH = '''<i>You Are not authorized user! Deploy your own WZML-X Mirror-Leech bot</i>'''
@@ -145,9 +145,9 @@ class LMTBStyle:
     L_TOTAL_FILES =         '┠ <b>Total Files: </b>{Files}\n'
     L_CORRUPTED_FILES =     '┠ <b>Corrupted Files: </b>{Corrupt}\n'
     L_CC =                  '┖ <b>By: </b>{Tag}\n\n'
-    PM_BOT_MSG =            '➲ <b><i>File(s) have been Sent above</i></b>'
-    L_BOT_MSG =             '➲ <b><i>File(s) have been Sent to Bot PM (Private)</i></b>'
-    L_LL_MSG =              '➲ <b><i>File(s) have been Sent. Access via Links...</i></b>\n'
+    PM_BOT_MSG =            '➲ <b><i>File(s) [have been Sent above]</i></b>'
+    L_BOT_MSG =             '➲ <b><i>File(s) [have been Sent to Bot PM] [BOT BY GOVAR X] (Private)</i></b>'
+    L_LL_MSG =              '➲ <b><i>File(s) [have been Sent. Access via Links...]</i></b>\n'
     
     # ----- MIRROR -------
     M_TYPE =                '┠ <b>Type: </b>{Mimetype}\n'
@@ -170,56 +170,56 @@ class LMTBStyle:
     MEDIAINFO_LINK =  '📃 MediaInfo'
     SCREENSHOTS =     '🖼 ScreenShots'
     # ---------------------
-
     # def get_readable_message(): ---> bot_utilis.py
     ####--------OVERALL MSG HEADER----------
-    STATUS_NAME =       '<b><i>{Name}</i></b>'
-
+    STATUS_NAME =       '📝 <b><i>{Name}</i></b>'
+  
     #####---------PROGRESSIVE STATUS-------
     BAR =               '\n┃ {Bar}'
-    PROCESSED =         '\n┠ <b>Processed:</b> {Processed}'
-    STATUS =            '\n┠ <b>Status:</b> <a href="{Url}">{Status}</a>'
-    ETA =                                                ' | <b>ETA:</b> {Eta}'
-    SPEED =             '\n┠ <b>Speed:</b> {Speed}'
-    ELAPSED =                                     ' | <b>Elapsed:</b> {Elapsed}'
-    ENGINE =            '\n┠ <b>Engine:</b> {Engine}'
-    STA_MODE =          '\n┠ <b>Mode:</b> {Mode}'
-    SEEDERS =           '\n┠ <b>Seeders:</b> {Seeders} | '
-    LEECHERS =                                           '<b>Leechers:</b> {Leechers}'
+    PROCESSED =         '\n┠ 📦 <b>Processed:</b> {Processed}'
+    STATUS =            '\n┠ 🚦 <b>Status:</b> <a href="{Url}">{Status}</a>'
+    ETA =               ' | 📅 <b>ETA:</b> {Eta}'
+    SPEED =             '\n┠ ⚡ <b>Speed:</b> {Speed}'
+    ELAPSED =           ' | 🕒 <b>Elapsed:</b> {Elapsed}'
+    ENGINE =            '\n┠ ⚙️ <b>Engine:</b> {Engine}'
+    STA_MODE =          '\n┠ 🛠️ <b>Mode:</b> {Mode}'
+    SEEDERS =           '\n┠ 🔼 <b>Seeders:</b> {Seeders} | '
+    LEECHERS =          '🔽 <b>Leechers:</b> {Leechers}'
 
     ####--------SEEDING----------
-    SEED_SIZE =      '\n┠ <b>Size: </b>{Size}'
-    SEED_SPEED =     '\n┠ <b>Speed: </b> {Speed} | '
-    UPLOADED =                                     '<b>Uploaded: </b> {Upload}'
-    RATIO =          '\n┠ <b>Ratio: </b> {Ratio} | '
-    TIME =                                         '<b>Time: </b> {Time}'
-    SEED_ENGINE =    '\n┠ <b>Engine:</b> {Engine}'
+    SEED_SIZE =         '\n┠ 💾 <b>Size: </b>{Size}'
+    SEED_SPEED =        '\n┠ ⚡ <b>Speed: </b> {Speed} | '
+    UPLOADED =          '📤 <b>Uploaded: </b> {Upload}'
+    RATIO =             '\n┠ 📈 <b>Ratio: </b> {Ratio} | '
+    TIME =              '⏰ <b>Time: </b> {Time}'
+    SEED_ENGINE =       '\n┠ ⚙️ <b>Engine:</b> {Engine}'
 
     ####--------NON-PROGRESSIVE + NON SEEDING----------
-    STATUS_SIZE =    '\n┠ <b>Size: </b>{Size}'
-    NON_ENGINE =     '\n┠ <b>Engine:</b> {Engine}'
+    STATUS_SIZE =       '\n┠ 💾 <b>Size: </b>{Size}'
+    NON_ENGINE =        '\n┠ ⚙️ <b>Engine:</b> {Engine}'
 
     ####--------OVERALL MSG FOOTER----------
-    USER =              '\n┠ <b>User:</b> <code>{User}</code> | '
-    ID =                                                        '<b>ID:</b> <code>{Id}</code>'
-    BTSEL =          '\n┠ <b>Select:</b> {Btsel}'
-    CANCEL =         '\n┖ {Cancel}\n\n'
+    USER =              '\n┠ 👤 <b>User:</b> <code>{User}</code>'
+    ID =                ' | 🆔 <b>ID:</b> <code>{Id}</code>'
+    BTSEL =             '\n┠ 📑 <b>Select:</b> {Btsel}'
+    CANCEL =            '\n┖ 🚫 {Cancel}\n\n'
 
     ####------FOOTER--------
-    FOOTER = '⌬ <b><i>Bot Stats</i></b>\n'
-    TASKS =  '┠ <b>Tasks:</b> {Tasks}\n'
-    BOT_TASKS = '┠ <b>Tasks:</b> {Tasks}/{Ttask} | <b>AVL:</b> {Free}\n'
-    Cpu = '┠ <b>CPU:</b> {cpu}% | '
-    FREE =                      '<b>F:</b> {free} [{free_p}%]'
-    Ram = '\n┠ <b>RAM:</b> {ram}% | '
-    uptime =                     '<b>UPTIME:</b> {uptime}'
-    DL = '\n┖ <b>DL:</b> {DL}/s | '
-    UL =                        '<b>UL:</b> {UL}/s'
+    FOOTER =            '⌬ <b><i>Bot Stats</i></b>\n'
+    TASKS =             '┠ 📋 <b>Tasks:</b> {Tasks}\n'
+    BOT_TASKS =         '┠ 📋 <b>Tasks:</b> {Tasks}/{Ttask} | 🟢 <b>AVL:</b> {Free}\n'
+    Cpu =               '┠ 💻 <b>CPU:</b> {cpu}% | '
+    FREE =              '💽 <b>F:</b> {free} [{free_p}%]'
+    Ram =               '\n┠ 💾 <b>RAM:</b> {ram}% | '
+    uptime =            '🆙 <b>UPTIME:</b> {uptime}'
+    DL =                '\n┖ 🔽 <b>DL:</b> {DL}/s | '
+    UL =                '🔼 <b>UL:</b> {UL}/s'
 
     ###--------BUTTONS-------
     PREVIOUS = '⫷'
-    REFRESH = 'ᴘᴀɢᴇs\n{Page}'
-    NEXT = '⫸'
+    REFRESH =  '🔄 {Page}'
+    NEXT =     '⫸'
+    
     # ---------------------
 
     #STOP_DUPLICATE_MSG: ---> clone.py, aria2_listener.py, task_manager.py
