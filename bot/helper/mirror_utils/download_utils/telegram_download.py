@@ -2,7 +2,7 @@
 from logging import getLogger, ERROR
 from time import time
 from asyncio import Lock
-from pyrogram import Client, enums  # Added enums here
+from pyrogram import Client
 
 from bot import (
     LOGGER,
@@ -142,10 +142,11 @@ class TelegramDownloadHelper:
             self.__client = None
             self.__decrypter = decrypter
 
-        # FIX 1: Ignore WEB_PAGE media (link previews) so they don't trigger the Telegram download block
+        # FIX: We check .value directly to avoid AttributeError on different Pyrogram versions
+        # This ignores the 'web_page' (link preview) so the code can move to the URL handler.
         media = (
             getattr(message, message.media.value)
-            if message.media and message.media != enums.MessageMediaType.WEB_PAGE
+            if message.media and message.media.value != "web_page"
             else None
         )
 
@@ -158,7 +159,7 @@ class TelegramDownloadHelper:
                     name = media.file_name if hasattr(media, "file_name") else "None"
                 else:
                     name = filename
-                path = path + name  # Indentation fixed here
+                path = path + name
                 size = media.file_size
                 gid = media.file_unique_id
 
@@ -192,12 +193,13 @@ class TelegramDownloadHelper:
             else:
                 await self.__onDownloadError("File already being downloaded!")
         else:
-            # FIX 2: If no media is found, treat it as a URL and pass to aria2/mega helper
+            # Handle Google Drive / Mega Links here
             from bot.helper.mirror_utils.download_utils.aria2_download import add_aria2c_download
             
-            # Extract the actual URL from the message text or caption
+            # Extract link from message text/caption
             link = message.text or message.caption
             if link:
+                # This redirects Mega/Drive links to the appropriate downloader
                 return await add_aria2c_download(link, path, self.__listener, filename, None, None, None)
             
             await self.__onDownloadError("No valid media or link found in the message")
