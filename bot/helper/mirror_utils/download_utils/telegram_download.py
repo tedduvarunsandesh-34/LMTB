@@ -105,11 +105,12 @@ class TelegramDownloadHelper:
             self.__client = None
             self.__decrypter = decrypter
 
-        # Fix for Attribute Error
+        # Fix: WebPagePreview objects don't have file_unique_id
         media = None
         if message.media:
             media = getattr(message, message.media.value, None)
         
+        # Checking if it is a valid media and has file_unique_id
         if media is not None and hasattr(media, 'file_unique_id'):
             async with global_lock:
                 download = media.file_unique_id not in GLOBAL_GID
