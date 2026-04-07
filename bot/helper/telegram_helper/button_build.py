@@ -9,8 +9,12 @@ class ButtonMaker:
         self.__footer_button = []
 
     def ubutton(self, key, link, position=None, emoji=None):
-        # Added emoji support via icon_custom_emoji_id
-        button = InlineKeyboardButton(text=key, url=link, icon_custom_emoji_id=emoji)
+        # Only add icon_custom_emoji_id if emoji is not None
+        if emoji:
+            button = InlineKeyboardButton(text=key, url=link, icon_custom_emoji_id=emoji)
+        else:
+            button = InlineKeyboardButton(text=key, url=link)
+            
         if not position:
             self.__button.append(button)
         elif position == 'header':
@@ -23,8 +27,12 @@ class ButtonMaker:
             self.__footer_button.append(button)
 
     def ibutton(self, key, data, position=None, emoji=None):
-        # Added emoji support via icon_custom_emoji_id
-        button = InlineKeyboardButton(text=key, callback_data=data, icon_custom_emoji_id=emoji)
+        # Only add icon_custom_emoji_id if emoji is not None
+        if emoji:
+            button = InlineKeyboardButton(text=key, callback_data=data, icon_custom_emoji_id=emoji)
+        else:
+            button = InlineKeyboardButton(text=key, callback_data=data)
+            
         if not position:
             self.__button.append(button)
         elif position == 'header':
