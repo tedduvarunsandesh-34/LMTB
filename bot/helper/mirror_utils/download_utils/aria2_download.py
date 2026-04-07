@@ -13,7 +13,7 @@ from bot.helper.mirror_utils.status_utils.aria2_status import Aria2Status
 from bot.helper.telegram_helper.message_utils import sendMessage, sendStatusMessage
 from bot.helper.ext_utils.bot_utils import sync_to_async, bt_selection_buttons
 # Removed the broken import here
-from bot.helper.ext_utils.files_utils import aiopath, aioremove
+from bot.helper.ext_utils.files_util import aiopath, aioremove
 
 async def add_aria2c_download(link, path, listener, filename, header, ratio, seed_time):
     # --- FIXED: REDIRECT MEGA LINKS ---
