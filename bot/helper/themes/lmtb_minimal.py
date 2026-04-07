@@ -108,12 +108,13 @@ class LMTBStyle:
     # ---------------------
 
     # async def restart_notification(): ---> __main__.py
-    RESTART_SUCCESS = '''⌬ <b><i>Restarted Successfully!</i></b>
+    RESTART_SUCCESS = '''⌬ <b><i>Restarted Successfully!
+    BOT BY GOVAR X!!!!! LOVE U BABE</i></b>
 ┠ <b>Date:</b> {date}
 ┠ <b>Time:</b> {time}
 ┠ <b>TimeZone:</b> {timz}
 ┖ <b>Version:</b> {version}'''
-    RESTARTED = '''⌬ <b><i>Bot Restarted!</i></b>'''
+    RESTARTED = '''⌬ <b><i>Bot Restarted! BY GOVAR LOVE U BABE!!!!</i></b>'''
     # ---------------------
 
     # async def ping(client, message): ---> __main__.py
@@ -173,7 +174,10 @@ class LMTBStyle:
     # def get_readable_message(): ---> bot_utilis.py
     ####--------OVERALL MSG HEADER----------
     STATUS_NAME =       '📝 <b><i>{Name}</i></b>'
-  
+    
+        <b>  BOT BY MR GOVARX!!!
+           ━━━━━━━✦✗✦━━━━━━━ </b>
+
     #####---------PROGRESSIVE STATUS-------
     BAR =               '\n┃ {Bar}'
     PROCESSED =         '\n┠ 📦 <b>Processed:</b> {Processed}'
@@ -253,7 +257,7 @@ class LMTBStyle:
 
     # USER Setting --> user_setting.py 
     USER_SETTING = '''㊂ <b><u>User Settings :</u></b>
-        
+         ━━━━━━━✦✗✦━━━━━━━     
 ┎<b> Name :</b> {NAME} ( <code>{ID}</code> )
 ┠<b> Username :</b> {USERNAME}
 ┠<b> Telegram DC :</b> {DC}
@@ -263,7 +267,7 @@ class LMTBStyle:
 • <b>-s</b> or <b>-set</b>: Set Directly via Arg'''
 
     UNIVERSAL = '''㊂ <b><u>Universal Settings : {NAME}</u></b>
-
+          ━━━━━━━✦✗✦━━━━━━━
 ┎<b> YT-DLP Options :</b> <b><code>{YT}</code></b>
 ┠<b> Daily Tasks :</b> <code>{DT}</code> per day
 ┠<b> Last Bot Used :</b> <code>{LAST_USED}</code>
@@ -273,7 +277,7 @@ class LMTBStyle:
 ┖<b> User Bot PM :</b> <code>{BOT_PM}</code>'''
 
     MIRROR = '''㊂ <b><u>Mirror/Clone Settings : {NAME}</u></b>
-
+          ━━━━━━━✦✗✦━━━━━━━
 ┎<b> RClone Config :</b> <i>{RCLONE}</i>
 ┠<b> Mirror Prefix :</b> <code>{MPREFIX}</code>
 ┠<b> Mirror Suffix :</b> <code>{MSUFFIX}</code>
