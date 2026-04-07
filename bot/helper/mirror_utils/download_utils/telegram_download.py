@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import re
 from logging import getLogger, ERROR
 from time import time
 from asyncio import Lock
@@ -105,12 +106,11 @@ class TelegramDownloadHelper:
             self.__client = None
             self.__decrypter = decrypter
 
-        # Fix: WebPagePreview objects don't have file_unique_id
         media = None
         if message.media:
             media = getattr(message, message.media.value, None)
         
-        # Checking if it is a valid media and has file_unique_id
+        # 1. Attempt to download direct Telegram Media
         if media is not None and hasattr(media, 'file_unique_id'):
             async with global_lock:
                 download = media.file_unique_id not in GLOBAL_GID
@@ -121,7 +121,6 @@ class TelegramDownloadHelper:
                 else:
                     name = filename
                 
-                # Correct Path Handling
                 if not path.endswith('/'):
                     path += '/'
                 path = path + name
@@ -156,8 +155,21 @@ class TelegramDownloadHelper:
                 await self.__download(message, path)
             else:
                 await self.__onDownloadError('File already being downloaded!')
+        
+        # 2. If no media, search for a Link in the text and redirect to Aria2
         else:
-            await self.__onDownloadError('No valid media type in the replied message (Link Previews are not downloadable)')
+            msg_content = message.text or message.caption or ""
+            link_search = re.search(r'(https?://[^\s]+)', msg_content)
+            
+            if link_search:
+                link = link_search.group(1)
+                LOGGER.info(f"Link found in preview, redirecting to Aria2: {link}")
+                
+                # Import downloader dynamically to avoid circular imports
+                from bot.helper.mirror_utils.download_utils.aria2_download import add_aria2c_download
+                return await add_aria2c_download(link, path, self.__listener, filename, None, None, None)
+            
+            await self.__onDownloadError('No valid media or link found in the replied message.')
 
     async def cancel_download(self):
         self.__is_cancelled = True
