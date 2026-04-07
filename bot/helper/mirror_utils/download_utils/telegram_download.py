@@ -22,7 +22,7 @@ class TelegramDownloadHelper:
         self.name = ""
         self.__processed_bytes = 0
         self.__start_time = time()
-        self.__ listener = listener
+        self.__listener = listener
         self.__client = bot
         self.__decrypter = None
         self.__id = ""
@@ -149,7 +149,7 @@ class TelegramDownloadHelper:
             else:
                 await self.__onDownloadError('File already being downloaded!')
         
-        # 2. Extract Original Link from text/preview and redirect
+        # 2. Handle Original Link Extraction and Redirection
         else:
             original_link = None
             entities = message.entities or message.caption_entities
@@ -170,7 +170,7 @@ class TelegramDownloadHelper:
                     original_link = link_search.group(1)
 
             if original_link:
-                LOGGER.info(f"Taking original link: {original_link}")
+                LOGGER.info(f"Redirecting original link: {original_link}")
                 from bot.helper.mirror_utils.download_utils.aria2_download import add_aria2c_download
                 return await add_aria2c_download(original_link, path, self.__listener, filename, None, None, None)
             
