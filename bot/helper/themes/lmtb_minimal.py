@@ -171,13 +171,14 @@ class LMTBStyle:
     MEDIAINFO_LINK =  '📃 MediaInfo'
     SCREENSHOTS =     '🖼 ScreenShots'
     # ---------------------
+    # ---------------------
     # def get_readable_message(): ---> bot_utilis.py
     ####--------OVERALL MSG HEADER----------
-    STATUS_NAME =       '📝 <b><i>{Name}</i></b>'
-    
-        <b>  BOT BY MR GOVARX!!!
-           ━━━━━━━✦✗✦━━━━━━━ </b>
+    STATUS_NAME = '📝 <b><i>{Name}</i></b>\n' \
+                  '<b>  BOT BY MR GOVARX!!!\n' \
+                  '━━━━━━━✦✗✦━━━━━━━ </b>'
 
+    #####---------PROGRESSIVE STATUS-------
     #####---------PROGRESSIVE STATUS-------
     BAR =               '\n┃ {Bar}'
     PROCESSED =         '\n┠ 📦 <b>Processed:</b> {Processed}'
