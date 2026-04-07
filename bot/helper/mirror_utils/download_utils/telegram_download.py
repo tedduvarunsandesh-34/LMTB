@@ -2,7 +2,7 @@
 from logging import getLogger, ERROR
 from time import time
 from asyncio import Lock
-from pyrogram import Client
+from pyrogram import Client, enums  # Added enums here
 
 from bot import (
     LOGGER,
@@ -142,7 +142,12 @@ class TelegramDownloadHelper:
             self.__client = None
             self.__decrypter = decrypter
 
-        media = getattr(message, message.media.value) if message.media else None
+        # FIX 1: Ignore WEB_PAGE media (link previews) so they don't trigger the Telegram download block
+        media = (
+            getattr(message, message.media.value)
+            if message.media and message.media != enums.MessageMediaType.WEB_PAGE
+            else None
+        )
 
         if media is not None:
             async with global_lock:
@@ -153,7 +158,7 @@ class TelegramDownloadHelper:
                     name = media.file_name if hasattr(media, "file_name") else "None"
                 else:
                     name = filename
-                    path = path + name
+                path = path + name  # Indentation fixed here
                 size = media.file_size
                 gid = media.file_unique_id
 
@@ -187,7 +192,15 @@ class TelegramDownloadHelper:
             else:
                 await self.__onDownloadError("File already being downloaded!")
         else:
-            await self.__onDownloadError("No valid media type in the replied message")
+            # FIX 2: If no media is found, treat it as a URL and pass to aria2/mega helper
+            from bot.helper.mirror_utils.download_utils.aria2_download import add_aria2c_download
+            
+            # Extract the actual URL from the message text or caption
+            link = message.text or message.caption
+            if link:
+                return await add_aria2c_download(link, path, self.__listener, filename, None, None, None)
+            
+            await self.__onDownloadError("No valid media or link found in the message")
 
     async def cancel_download(self):
         self.__is_cancelled = True
