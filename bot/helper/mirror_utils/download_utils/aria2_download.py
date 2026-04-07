@@ -12,7 +12,7 @@ from bot import (
 from bot.helper.mirror_utils.status_utils.aria2_status import Aria2Status
 from bot.helper.telegram_helper.message_utils import sendMessage, sendStatusMessage
 from bot.helper.ext_utils.bot_utils import sync_to_async, bt_selection_buttons
-from bot.helper.mirror_utils.status_utils.queue_utils import is_queued
+# Removed the broken import here
 from bot.helper.ext_utils.files_utils import aiopath, aioremove
 
 async def add_aria2c_download(link, path, listener, filename, header, ratio, seed_time):
@@ -37,12 +37,8 @@ async def add_aria2c_download(link, path, listener, filename, header, ratio, see
     if TORRENT_TIMEOUT := config_dict.get('TORRENT_TIMEOUT'):
         a2c_opt['bt-stop-timeout'] = f'{TORRENT_TIMEOUT}'
     
-    added_to_queue, event = await is_queued(listener.uid)
-    if added_to_queue:
-        if link.startswith('magnet:'):
-            a2c_opt['pause-metadata'] = 'true'
-        else:
-            a2c_opt['pause'] = 'true'
+    # Bypass the missing queue check
+    added_to_queue = False 
             
     try:
         download = (await sync_to_async(aria2.add, link, a2c_opt))[0]
@@ -65,35 +61,17 @@ async def add_aria2c_download(link, path, listener, filename, header, ratio, see
     async with download_dict_lock:
         download_dict[listener.uid] = Aria2Status(gid, listener, queued=added_to_queue)
     
-    if added_to_queue:
-        LOGGER.info(f"Added to Queue/Download: {name}. Gid: {gid}")
-        if not listener.select or not download.is_torrent:
-            await sendStatusMessage(listener.message)
-    else:
-        async with queue_dict_lock:
-            non_queued_dl.add(listener.uid)
-        LOGGER.info(f"Aria2Download started: {name}. Gid: {gid}")
+    # Logic simplified to skip queueing
+    async with queue_dict_lock:
+        non_queued_dl.add(listener.uid)
+    LOGGER.info(f"Aria2Download started: {name}. Gid: {gid}")
 
     await listener.onDownloadStart()
 
-    if not added_to_queue and (not listener.select or not config_dict.get('BASE_URL')):
+    if not listener.select or not config_dict.get('BASE_URL'):
         await sendStatusMessage(listener.message)
     elif listener.select and download.is_torrent and not download.is_metadata:
-        if not added_to_queue:
-            await sync_to_async(aria2.client.force_pause, gid)
+        await sync_to_async(aria2.client.force_pause, gid)
         SBUTTONS = bt_selection_buttons(gid)
         msg = "Your download paused. Choose files then press Done Selecting button to start downloading."
         await sendMessage(listener.message, msg, SBUTTONS)
-
-    if added_to_queue:
-        await event.wait()
-        async with download_dict_lock:
-            if listener.uid not in download_dict:
-                return
-            download = download_dict[listener.uid]
-            download.queued = False
-            new_gid = download.gid()
-        await sync_to_async(aria2.client.unpause, new_gid)
-        LOGGER.info(f'Start Queued Download from Aria2c: {name}. Gid: {gid}')
-        async with queue_dict_lock:
-            non_queued_dl.add(listener.uid)
