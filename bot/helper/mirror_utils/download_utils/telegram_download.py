@@ -142,16 +142,17 @@ class TelegramDownloadHelper:
             self.__client = None
             self.__decrypter = decrypter
 
-        # FIX: We check .value directly to avoid AttributeError on different Pyrogram versions
-        # This ignores the 'web_page' (link preview) so the code can move to the URL handler.
-        media = (
-            getattr(message, message.media.value)
-            if message.media and message.media.value != "web_page"
-            else None
-        )
+        # STEP 1: Identify if there is actual media (Document, Video, etc.)
+        media = getattr(message, message.media.value) if message.media else None
+
+        # STEP 2: The Final Fix - If it's a WebPagePreview, it won't have file_unique_id.
+        # If it doesn't have the ID, we force media to None so it goes to the URL handler.
+        if media is not None and not hasattr(media, 'file_unique_id'):
+            media = None
 
         if media is not None:
             async with global_lock:
+                # This line was crashing before; hasattr check above prevents it now.
                 download = media.file_unique_id not in GLOBAL_GID
 
             if download:
@@ -159,7 +160,12 @@ class TelegramDownloadHelper:
                     name = media.file_name if hasattr(media, "file_name") else "None"
                 else:
                     name = filename
+                
+                # Ensure correct path formatting
+                if not path.endswith('/'):
+                    path += '/'
                 path = path + name
+                
                 size = media.file_size
                 gid = media.file_unique_id
 
@@ -193,13 +199,12 @@ class TelegramDownloadHelper:
             else:
                 await self.__onDownloadError("File already being downloaded!")
         else:
-            # Handle Google Drive / Mega Links here
+            # STEP 3: Handle Mega / GDrive Links
             from bot.helper.mirror_utils.download_utils.aria2_download import add_aria2c_download
             
-            # Extract link from message text/caption
             link = message.text or message.caption
             if link:
-                # This redirects Mega/Drive links to the appropriate downloader
+                LOGGER.info(f"Link detected, sending to Aria2/Mega: {link[:50]}")
                 return await add_aria2c_download(link, path, self.__listener, filename, None, None, None)
             
             await self.__onDownloadError("No valid media or link found in the message")
