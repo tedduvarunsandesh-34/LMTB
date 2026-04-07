@@ -12,8 +12,18 @@ from bot import (
 from bot.helper.mirror_utils.status_utils.aria2_status import Aria2Status
 from bot.helper.telegram_helper.message_utils import sendMessage, sendStatusMessage
 from bot.helper.ext_utils.bot_utils import sync_to_async, bt_selection_buttons
-# FIXED: Changed files_util to file_utils
-from bot.helper.ext_utils.file_utils import aiopath, aioremove
+
+# --- FIXED: DYNAMIC IMPORT TO PREVENT CRASH ---
+try:
+    from bot.helper.ext_utils.file_utils import aiopath, aioremove
+except ImportError:
+    try:
+        from bot.helper.ext_utils.files_utils import aiopath, aioremove
+    except ImportError:
+        # Fallback if the bot uses a different structure entirely
+        import os
+        from aiofiles.os import path as aiopath, remove as aioremove
+# ----------------------------------------------
 
 async def add_aria2c_download(link, path, listener, filename, header, ratio, seed_time):
     # --- FIXED: REDIRECT MEGA LINKS ---
@@ -37,7 +47,7 @@ async def add_aria2c_download(link, path, listener, filename, header, ratio, see
     if TORRENT_TIMEOUT := config_dict.get('TORRENT_TIMEOUT'):
         a2c_opt['bt-stop-timeout'] = f'{TORRENT_TIMEOUT}'
     
-    # Bypass the missing queue check to prevent ModuleNotFoundError
+    # Bypass missing queue_utils module
     added_to_queue = False 
             
     try:
@@ -61,7 +71,6 @@ async def add_aria2c_download(link, path, listener, filename, header, ratio, see
     async with download_dict_lock:
         download_dict[listener.uid] = Aria2Status(gid, listener, queued=added_to_queue)
     
-    # Logic simplified to skip queueing
     async with queue_dict_lock:
         non_queued_dl.add(listener.uid)
     LOGGER.info(f"Aria2Download started: {name}. Gid: {gid}")
