@@ -1,6 +1,5 @@
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-
 class ButtonMaker:
     def __init__(self):
         self.__button = []
@@ -9,29 +8,33 @@ class ButtonMaker:
         self.__last_body_button = []
         self.__footer_button = []
 
-    def ubutton(self, key, link, position=None):
+    def ubutton(self, key, link, position=None, emoji=None):
+        # Added emoji support via icon_custom_emoji_id
+        button = InlineKeyboardButton(text=key, url=link, icon_custom_emoji_id=emoji)
         if not position:
-            self.__button.append(InlineKeyboardButton(text=key, url=link))
+            self.__button.append(button)
         elif position == 'header':
-            self.__header_button.append(InlineKeyboardButton(text=key, url=link))
+            self.__header_button.append(button)
         elif position == 'f_body':
-            self.__first_body_button.append(InlineKeyboardButton(text=key, url=link))
+            self.__first_body_button.append(button)
         elif position == 'l_body':
-            self.__last_body_button.append(InlineKeyboardButton(text=key, url=link))
+            self.__last_body_button.append(button)
         elif position == 'footer':
-            self.__footer_button.append(InlineKeyboardButton(text=key, url=link))
+            self.__footer_button.append(button)
 
-    def ibutton(self, key, data, position=None):
+    def ibutton(self, key, data, position=None, emoji=None):
+        # Added emoji support via icon_custom_emoji_id
+        button = InlineKeyboardButton(text=key, callback_data=data, icon_custom_emoji_id=emoji)
         if not position:
-            self.__button.append(InlineKeyboardButton(text=key, callback_data=data))
+            self.__button.append(button)
         elif position == 'header':
-            self.__header_button.append(InlineKeyboardButton(text=key, callback_data=data))
+            self.__header_button.append(button)
         elif position == 'f_body':
-            self.__first_body_button.append(InlineKeyboardButton(text=key, callback_data=data))
+            self.__first_body_button.append(button)
         elif position == 'l_body':
-            self.__last_body_button.append(InlineKeyboardButton(text=key, callback_data=data))
+            self.__last_body_button.append(button)
         elif position == 'footer':
-            self.__footer_button.append(InlineKeyboardButton(text=key, callback_data=data))
+            self.__footer_button.append(button)
 
     def build_menu(self, b_cols=1, h_cols=8, fb_cols=2, lb_cols=2, f_cols=8):
         menu = [self.__button[i:i+b_cols]
