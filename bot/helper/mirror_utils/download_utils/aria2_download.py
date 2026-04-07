@@ -20,21 +20,31 @@ except ImportError:
     try:
         from bot.helper.ext_utils.files_utils import aiopath, aioremove
     except ImportError:
-        # Fallback if the bot uses a different structure entirely
         import os
         from aiofiles.os import path as aiopath, remove as aioremove
 # ----------------------------------------------
 
 async def add_aria2c_download(link, path, listener, filename, header, ratio, seed_time):
-    # --- FIXED: REDIRECT MEGA LINKS ---
+    # --- ADDED: REDIRECT GDRIVE & MEGA LINKS ---
+    # This prevents aria2 from trying to download Google Drive links as HTML
+    if "drive.google.com" in link:
+        try:
+            from bot.helper.mirror_utils.download_utils.gd_download import add_gd_download
+            return await add_gd_download(link, path, listener, filename)
+        except ImportError:
+            LOGGER.error("gd_download.py not found! Cannot handle GDrive link.")
+            await sendMessage(listener.message, "GDrive helper module is missing in this bot version.")
+            return
+
     if "mega.nz" in link:
         from bot.helper.mirror_utils.download_utils.mega_download import add_mega_download
         return await add_mega_download(link, path, listener, filename)
-    # ----------------------------------
+    # -------------------------------------------
 
     a2c_opt = {**aria2_options}
     [a2c_opt.pop(k) for k in aria2c_global if k in aria2_options]
     a2c_opt['dir'] = path
+    
     if filename:
         a2c_opt['out'] = filename
     if header:
