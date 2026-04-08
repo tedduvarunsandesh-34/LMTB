@@ -1,0 +1,14 @@
+aiofiles
+aiohttp
+alembic
+asyncio
+beautifulsoup4
+dnspython
+motor
+pillow
+psutil
+py-cpuinfo
+pyrogram
+python-dotenv
+requests
+tgcrypto
