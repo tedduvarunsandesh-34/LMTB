@@ -3,10 +3,13 @@ name: Heroku Deployment
 on:
   push:
     branches:
-      - main  # Deployment triggers only when you push to the main branch
+      - main
+
+env:
+  # This clears the deprecation warnings and uses the modern runner
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  # 1. Build and Test Job
   build-and-test:
     runs-on: ubuntu-latest
     steps:
@@ -16,18 +19,19 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20' # Change to your project's version
+          node-version: '24' # Updated to the current standard
 
       - name: Install Dependencies
         run: npm ci
 
       - name: Run Tests
+        # The 'exit code 1' usually happens here. 
+        # If you don't have tests yet, you can comment this out.
         run: npm test --if-present
 
-  # 2. Deploy Job (Runs only if Build/Test passes)
   deploy:
     runs-on: ubuntu-latest
-    needs: build-and-test # This ensures tests pass before deploying
+    needs: build-and-test
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -38,6 +42,4 @@ jobs:
           heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
           heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
           heroku_email: ${{ secrets.HEROKU_EMAIL }}
-          # if your app is a subdirectory, uncomment the line below:
-          # appdir: "folder_name" 
           
