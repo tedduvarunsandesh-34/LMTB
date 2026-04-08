@@ -174,11 +174,11 @@ class LMTBStyle:
     # ---------------------
     # def get_readable_message(): ---> bot_utilis.py
     ####--------OVERALL MSG HEADER----------
-    STATUS_NAME = '📝 <b><i>{Name}</i></b>\n' \
-    
-                  '<b>BOT BY MR GOVARX!!!\n' \
-                  '━━━━━━━✦✗✦━━━━━━━ </b>'
-
+    STATUS_NAME = (
+        '📝 <b><i>{Name}</i></b>\n'
+        '<b>BOT BY MR GOVARX!!!\n'
+        '━━━━━━━✦✗✦━━━━━━━ </b>'
+    )
     #####---------PROGRESSIVE STATUS-------
     #####---------PROGRESSIVE STATUS-------
     BAR =               '\n┃ {Bar}'
