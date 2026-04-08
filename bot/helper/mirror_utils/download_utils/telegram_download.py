@@ -142,17 +142,15 @@ class TelegramDownloadHelper:
             self.__client = None
             self.__decrypter = decrypter
 
-        # STEP 1: Identify if there is actual media (Document, Video, etc.)
+        # STEP 1: Identify if there is actual media
         media = getattr(message, message.media.value) if message.media else None
 
-        # STEP 2: The Final Fix - If it's a WebPagePreview, it won't have file_unique_id.
-        # If it doesn't have the ID, we force media to None so it goes to the URL handler.
+        # STEP 2: Safety check for WebPagePreview
         if media is not None and not hasattr(media, 'file_unique_id'):
             media = None
 
         if media is not None:
             async with global_lock:
-                # This line was crashing before; hasattr check above prevents it now.
                 download = media.file_unique_id not in GLOBAL_GID
 
             if download:
@@ -161,7 +159,6 @@ class TelegramDownloadHelper:
                 else:
                     name = filename
                 
-                # Ensure correct path formatting
                 if not path.endswith('/'):
                     path += '/'
                 path = path + name
@@ -205,7 +202,8 @@ class TelegramDownloadHelper:
             link = message.text or message.caption
             if link:
                 LOGGER.info(f"Link detected, sending to Aria2/Mega: {link[:50]}")
-                return await add_aria2c_download(link, path, self.__listener, filename, None, None, None)
+                # FIX: Added 'link' as the last argument (org_link) to satisfy function requirements
+                return await add_aria2c_download(link, path, self.__listener, filename, None, None, link)
             
             await self.__onDownloadError("No valid media or link found in the message")
 
