@@ -1,3 +1,4 @@
+aria2p
 aiofiles
 aiohttp
 alembic
@@ -12,3 +13,4 @@ pyrogram
 python-dotenv
 requests
 tgcrypto
+uvloop
