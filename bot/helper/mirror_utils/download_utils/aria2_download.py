@@ -25,20 +25,26 @@ except ImportError:
 # ----------------------------------------------
 
 async def add_aria2c_download(link, path, listener, filename, header, ratio, seed_time):
-    # --- ADDED: REDIRECT GDRIVE & MEGA LINKS ---
-    # This prevents aria2 from trying to download Google Drive links as HTML
+    # --- FIXED: REDIRECT GDRIVE & MEGA LINKS WITH ORG_LINK ---
     if "drive.google.com" in link:
         try:
             from bot.helper.mirror_utils.download_utils.gd_download import add_gd_download
-            return await add_gd_download(link, path, listener, filename)
+            # Added 'link' as the 5th argument to satisfy org_link requirement
+            return await add_gd_download(link, path, listener, filename, link)
         except ImportError:
             LOGGER.error("gd_download.py not found! Cannot handle GDrive link.")
             await sendMessage(listener.message, "GDrive helper module is missing in this bot version.")
             return
 
     if "mega.nz" in link:
-        from bot.helper.mirror_utils.download_utils.mega_download import add_mega_download
-        return await add_mega_download(link, path, listener, filename)
+        try:
+            from bot.helper.mirror_utils.download_utils.mega_download import add_mega_download
+            # Added 'link' as the 5th argument to satisfy org_link requirement
+            return await add_mega_download(link, path, listener, filename, link)
+        except ImportError:
+            LOGGER.error("mega_download.py not found! Cannot handle Mega link.")
+            await sendMessage(listener.message, "Mega helper module is missing in this bot version.")
+            return
     # -------------------------------------------
 
     a2c_opt = {**aria2_options}
