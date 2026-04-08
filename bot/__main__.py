@@ -2,7 +2,7 @@ from time import time, monotonic
 from datetime import datetime
 from sys import executable
 from os import execl as osexecl
-from asyncio import create_subprocess_exec, gather, run as asyrun
+from asyncio import create_subprocess_exec, gather, run as asyrun, get_event_loop
 from uuid import uuid4
 from base64 import b64decode
 from importlib import import_module, reload
@@ -101,7 +101,6 @@ async def login(_, message):
         await sendMessage(message, BotTheme('LOGIN_USED'))
 
 
-
 async def restart(client, message):
     restart_message = await sendMessage(message, BotTheme('RESTARTING'))
     if scheduler.running:
@@ -110,7 +109,11 @@ async def restart(client, message):
     for interval in [QbInterval, Interval]:
         if interval:
             interval[0].cancel()
-    await sync_to_async(clean_all)
+    
+    # FIX: Use run_in_executor to handle synchronous clean_all properly
+    loop = get_event_loop()
+    await loop.run_in_executor(None, clean_all)
+    
     proc1 = await create_subprocess_exec('pkill', '-9', '-f', f'gunicorn|{bot_cache["pkgs"][-1]}')
     proc2 = await create_subprocess_exec('python3', 'update.py')
     await gather(proc1.wait(), proc2.wait())
@@ -244,7 +247,10 @@ async def log_check():
 
 async def main():
     await gather(start_cleanup(), torrent_search.initiate_search_tools(), restart_notification(), search_images(), set_commands(bot), log_check())
-    await sync_to_async(start_aria2_listener, wait=False)
+    
+    # FIX: Run the aria2 listener in an executor to avoid blocking the main async loop
+    loop = get_event_loop()
+    loop.run_in_executor(None, start_aria2_listener)
     
     bot.add_handler(MessageHandler(
         start, filters=command(BotCommands.StartCommand) & private))
