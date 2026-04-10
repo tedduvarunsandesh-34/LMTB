@@ -88,10 +88,10 @@ async def restart(client, message):
     osexecl(executable, executable, "-m", "bot")
 
 async def restart_notification():
-    await sleep(5) # Give time for DB and Bot to fully load
+    await sleep(5) # Give DB time to initialize
     now = datetime.now(timezone(config_dict['TIMEZONE']))
     
-    # Send to All Users who used /start
+    # 1. BroadCast to PM USERS
     if DATABASE_URL:
         try:
             db = DbManger()
@@ -99,14 +99,14 @@ async def restart_notification():
             if users:
                 for user_id in users:
                     try:
-                        await bot.send_message(chat_id=int(user_id), text="🚀 **Bot has been Restarted and is now Online!**")
+                        await bot.send_message(chat_id=int(user_id), text="🚀 **Hey! The Bot is back Online and ready for your commands!**")
                         await sleep(0.5)
                     except:
                         continue
         except Exception as e:
-            LOGGER.error(f"Restart DM Notification Error: {e}")
+            LOGGER.error(f"Restart PM Notif Error: {e}")
 
-    # Send to Log Group
+    # 2. LOG GROUP Notification
     if log_id := config_dict.get('LEECH_LOG_ID'):
         for chat in log_id.split():
             try:
@@ -114,13 +114,14 @@ async def restart_notification():
             except Exception as e:
                 LOGGER.error(f"Group Log Error: {e}")
 
+    # 3. Edit "Restarting..." Message
     if await aiopath.isfile(".restartmsg"):
         with open(".restartmsg") as f:
             chat_id, msg_id = map(int, f)
         try:
             await bot.edit_message_text(chat_id=chat_id, message_id=msg_id, text=BotTheme('RESTART_SUCCESS', time=now.strftime('%I:%M:%S %p'), date=now.strftime('%d/%m/%y'), timz=config_dict['TIMEZONE'], version=get_version()))
         except Exception as e:
-            LOGGER.error(e)
+            LOGGER.error(f"Edit restart msg error: {e}")
         await aioremove(".restartmsg")
 
 async def main():
@@ -129,8 +130,8 @@ async def main():
     loop.run_in_executor(None, start_aria2_listener)
     bot.add_handler(MessageHandler(start, filters=command(BotCommands.StartCommand) & private))
     bot.add_handler(MessageHandler(restart, filters=command(BotCommands.RestartCommand) & CustomFilters.sudo))
-    # ... other handlers ...
-    LOGGER.info(f"Bot Started!")
+    # ... rest of your handlers
+    LOGGER.info(f"Bot Started Successfully!")
     signal(SIGINT, exit_clean_up)
 
 bot_run = bot.loop.run_until_complete
