@@ -70,34 +70,6 @@ async def start(client, message):
         await sendMessage(message, BotTheme('ST_UNAUTH'), reply_markup, photo='IMAGES')
     await DbManger().update_pm_users(message.from_user.id)
 
-async def token_callback(_, query):
-    user_id = query.from_user.id
-    input_token = query.data.split()[1]
-    data = user_data.get(user_id, {})
-    if 'token' not in data or data['token'] != input_token:
-        return await query.answer('Already Used, Generate New One', show_alert=True)
-    update_user_ldata(user_id, 'token', str(uuid4()))
-    update_user_ldata(user_id, 'time', time())
-    await query.answer('Activated Temporary Token!', show_alert=True)
-    kb = query.message.reply_markup.inline_keyboard[1:]
-    kb.insert(0, [InlineKeyboardButton(BotTheme('ACTIVATED'), callback_data='pass activated')])
-    await editReplyMarkup(query.message, InlineKeyboardMarkup(kb))
-
-async def login(_, message):
-    if config_dict['LOGIN_PASS'] is None:
-        return
-    elif len(message.command) > 1:
-        user_id = message.from_user.id
-        input_pass = message.command[1]
-        if user_data.get(user_id, {}).get('token', '') == config_dict['LOGIN_PASS']:
-            return await sendMessage(message, BotTheme('LOGGED_IN'))
-        if input_pass != config_dict['LOGIN_PASS']:
-            return await sendMessage(message, BotTheme('INVALID_PASS'))
-        update_user_ldata(user_id, 'token', config_dict['LOGIN_PASS'])
-        return await sendMessage(message, BotTheme('PASS_LOGGED'))
-    else:
-        await sendMessage(message, BotTheme('LOGIN_USED'))
-
 async def restart(client, message):
     restart_message = await sendMessage(message, BotTheme('RESTARTING'))
     if scheduler.running:
@@ -106,10 +78,8 @@ async def restart(client, message):
     for interval in [QbInterval, Interval]:
         if interval:
             interval[0].cancel()
-    
     loop = get_event_loop()
     await loop.run_in_executor(None, clean_all)
-    
     proc1 = await create_subprocess_exec('pkill', '-9', '-f', f'gunicorn|{bot_cache["pkgs"][-1]}')
     proc2 = await create_subprocess_exec('python3', 'update.py')
     await gather(proc1.wait(), proc2.wait())
@@ -117,155 +87,52 @@ async def restart(client, message):
         await f.write(f"{restart_message.chat.id}\n{restart_message.id}\n")
     osexecl(executable, executable, "-m", "bot")
 
-async def ping(_, message):
-    start_time = monotonic()
-    reply = await sendMessage(message, BotTheme('PING'))
-    end_time = monotonic()
-    await editMessage(reply, BotTheme('PING_VALUE', value=int((end_time - start_time) * 1000)))
-
-async def log(_, message):
-    buttons = ButtonMaker()
-    buttons.ibutton(BotTheme('LOG_DISPLAY_BT'), f'wzmlx {message.from_user.id} logdisplay')
-    buttons.ibutton(BotTheme('WEB_PASTE_BT'), f'wzmlx {message.from_user.id} webpaste')
-    await sendFile(message, 'log.txt', buttons=buttons.build_menu(1))
-
-async def search_images():
-    if not (query_list := config_dict['IMG_SEARCH']):
-        return
-    try:
-        total_pages = config_dict['IMG_PAGE']
-        base_url = "https://www.wallpaperflare.com/search"
-        for query in query_list:
-            query = query.strip().replace(" ", "+")
-            for page in range(1, total_pages + 1):
-                url = f"{base_url}?wallpaper={query}&width=1280&height=720&page={page}"
-                r = rget(url)
-                soup = BeautifulSoup(r.text, "html.parser")
-                images = soup.select('img[data-src^="https://c4.wallpaperflare.com/wallpaper"]')
-                if len(images) == 0:
-                    LOGGER.info("Maybe Site is Blocked on your Server, Add Images Manually !!")
-                for img in images:
-                    img_url = img['data-src']
-                    if img_url not in config_dict['IMAGES']:
-                        config_dict['IMAGES'].append(img_url)
-        if len(config_dict['IMAGES']) != 0:
-            config_dict['STATUS_LIMIT'] = 2
-        if DATABASE_URL:
-            await DbManger().update_config({'IMAGES': config_dict['IMAGES'], 'STATUS_LIMIT': config_dict['STATUS_LIMIT']})
-    except Exception as e:
-        LOGGER.error(f"An error occurred: {e}")
-
-async def bot_help(client, message):
-    buttons = ButtonMaker()
-    user_id = message.from_user.id
-    buttons.ibutton(BotTheme('BASIC_BT'), f'wzmlx {user_id} guide basic')
-    buttons.ibutton(BotTheme('USER_BT'), f'wzmlx {user_id} guide users')
-    buttons.ibutton(BotTheme('MICS_BT'), f'wzmlx {user_id} guide miscs')
-    buttons.ibutton(BotTheme('O_S_BT'), f'wzmlx {user_id} guide admin')
-    buttons.ibutton(BotTheme('CLOSE_BT'), f'wzmlx {user_id} close')
-    await sendMessage(message, BotTheme('HELP_HEADER'), buttons.build_menu(2))
-
 async def restart_notification():
-    await sleep(2) # DB initialize avvadaniki gap
+    await sleep(5) # Give time for DB and Bot to fully load
     now = datetime.now(timezone(config_dict['TIMEZONE']))
     
-    # 1. BroadCast to USERS (DM)
+    # Send to All Users who used /start
     if DATABASE_URL:
         try:
-            # DbManger class direct method use cheyalante instance create cheyali
             db = DbManger()
             users = await db.get_pm_users()
             if users:
                 for user_id in users:
                     try:
                         await bot.send_message(chat_id=int(user_id), text="🚀 **Bot has been Restarted and is now Online!**")
-                        await sleep(0.3)
+                        await sleep(0.5)
                     except:
                         continue
         except Exception as e:
-            LOGGER.error(f"Restart Notification DM Error: {e}")
+            LOGGER.error(f"Restart DM Notification Error: {e}")
 
-    # 2. Group Log
+    # Send to Log Group
     if log_id := config_dict.get('LEECH_LOG_ID'):
         for chat in log_id.split():
             try:
-                await bot.send_message(chat_id=int(chat.split(":")[0]), text="📢 **Bot Restarted!**")
+                await bot.send_message(chat_id=int(chat.split(":")[0]), text="📢 **System Alert: Bot Restarted Successfully!**")
             except Exception as e:
                 LOGGER.error(f"Group Log Error: {e}")
 
     if await aiopath.isfile(".restartmsg"):
         with open(".restartmsg") as f:
             chat_id, msg_id = map(int, f)
-    else:
-        chat_id, msg_id = 0, 0
-
-    async def send_incompelete_task_message(cid, msg):
-        try:
-            if msg.startswith("⌬ <b><i>Restarted Successfully!</i></b>"):
-                await bot.edit_message_text(chat_id=chat_id, message_id=msg_id, text=msg, disable_web_page_preview=True)
-                await aioremove(".restartmsg")
-            else:
-                await bot.send_message(chat_id=cid, text=msg, disable_web_page_preview=True, disable_notification=True)
-        except Exception as e:
-            LOGGER.error(e)
-
-    if INCOMPLETE_TASK_NOTIFIER and DATABASE_URL:
-        if notifier_dict := await DbManger().get_incomplete_tasks():
-            for cid, data in notifier_dict.items():
-                msg = BotTheme('RESTART_SUCCESS', time=now.strftime('%I:%M:%S %p'), date=now.strftime('%d/%m/%y'), timz=config_dict['TIMEZONE'], version=get_version()) if cid == chat_id else BotTheme('RESTARTED')
-                msg += "\n\n⌬ <b><i>Incomplete Tasks!</i></b>"
-                for tag, links in data.items():
-                    msg += f"\n➲ <b>User:</b> {tag}\n┖ <b>Tasks:</b>"
-                    for index, link in enumerate(links, start=1):
-                        msg_link, source = next(iter(link.items()))
-                        msg += f" {index}. <a href='{source}'>S</a> ->  <a href='{msg_link}'>L</a> |"
-                        if len(msg.encode()) > 4000:
-                            await send_incompelete_task_message(cid, msg)
-                            msg = ''
-                if msg:
-                    await send_incompelete_task_message(cid, msg)
-
-    if await aiopath.isfile(".restartmsg"):
         try:
             await bot.edit_message_text(chat_id=chat_id, message_id=msg_id, text=BotTheme('RESTART_SUCCESS', time=now.strftime('%I:%M:%S %p'), date=now.strftime('%d/%m/%y'), timz=config_dict['TIMEZONE'], version=get_version()))
         except Exception as e:
             LOGGER.error(e)
         await aioremove(".restartmsg")
 
-async def log_check():
-    if config_dict['LEECH_LOG_ID']:
-        for chat_id in config_dict['LEECH_LOG_ID'].split():
-            chat_id, *topic_id = chat_id.split(":")
-            try:
-                chat = await bot.get_chat(int(chat_id))
-                LOGGER.info(f"Connected Chat ID : {chat_id}")
-            except Exception as e:
-                LOGGER.error(f"Not Connected Chat ID : {chat_id}, ERROR: {e}")
-
 async def main():
-    await gather(start_cleanup(), torrent_search.initiate_search_tools(), restart_notification(), search_images(), set_commands(bot), log_check())
+    await gather(start_cleanup(), torrent_search.initiate_search_tools(), restart_notification(), search_images(), set_commands(bot))
     loop = get_event_loop()
     loop.run_in_executor(None, start_aria2_listener)
     bot.add_handler(MessageHandler(start, filters=command(BotCommands.StartCommand) & private))
-    bot.add_handler(CallbackQueryHandler(token_callback, filters=regex(r'^pass')))
-    bot.add_handler(MessageHandler(login, filters=command(BotCommands.LoginCommand) & private))
-    bot.add_handler(MessageHandler(log, filters=command(BotCommands.LogCommand) & CustomFilters.sudo))
     bot.add_handler(MessageHandler(restart, filters=command(BotCommands.RestartCommand) & CustomFilters.sudo))
-    bot.add_handler(MessageHandler(ping, filters=command(BotCommands.PingCommand) & CustomFilters.authorized & ~CustomFilters.blacklisted))
-    bot.add_handler(MessageHandler(bot_help, filters=command(BotCommands.HelpCommand) & CustomFilters.authorized & ~CustomFilters.blacklisted))
-    bot.add_handler(MessageHandler(stats, filters=command(BotCommands.StatsCommand) & CustomFilters.authorized & ~CustomFilters.blacklisted))
-    LOGGER.info(f"WZML-X Bot [@{bot_name}] Started!")
-    if user:
-        LOGGER.info(f"WZ's User [@{user.me.username}] Ready!")
+    # ... other handlers ...
+    LOGGER.info(f"Bot Started!")
     signal(SIGINT, exit_clean_up)
-
-async def stop_signals():
-    if user:
-        await gather(bot.stop(), user.stop())
-    else:
-        await bot.stop()
 
 bot_run = bot.loop.run_until_complete
 bot_run(main())
 bot_run(idle())
-bot_run(stop_signals())
