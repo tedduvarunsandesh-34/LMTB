@@ -44,24 +44,7 @@ async def start(client, message):
     buttons.ubutton(BotTheme('ST_BN1_NAME'), BotTheme('ST_BN1_URL'))
     buttons.ubutton(BotTheme('ST_BN2_NAME'), BotTheme('ST_BN2_URL'))
     reply_markup = buttons.build_menu(2)
-    if len(message.command) > 1 and message.command[1] == "wzmlx":
-        await deleteMessage(message)
-    elif len(message.command) > 1 and config_dict['TOKEN_TIMEOUT']:
-        userid = message.from_user.id
-        encrypted_url = message.command[1]
-        input_token, pre_uid = (b64decode(encrypted_url.encode()).decode()).split('&&')
-        if int(pre_uid) != userid:
-            return await sendMessage(message, BotTheme('OWN_TOKEN_GENERATE'))
-        data = user_data.get(userid, {})
-        if 'token' not in data or data['token'] != input_token:
-            return await sendMessage(message, BotTheme('USED_TOKEN'))
-        elif config_dict['LOGIN_PASS'] is not None and data['token'] == config_dict['LOGIN_PASS']:
-            return await sendMessage(message, BotTheme('LOGGED_PASSWORD'))
-        buttons.ibutton(BotTheme('ACTIVATE_BUTTON'), f'pass {input_token}', 'header')
-        reply_markup = buttons.build_menu(2)
-        msg = BotTheme('TOKEN_MSG', token=input_token, validity=get_readable_time(int(config_dict["TOKEN_TIMEOUT"])))
-        return await sendMessage(message, msg, reply_markup)
-    elif await CustomFilters.authorized(client, message):
+    if await CustomFilters.authorized(client, message):
         start_string = BotTheme('ST_MSG', help_command=f"/{BotCommands.HelpCommand}")
         await sendMessage(message, start_string, reply_markup, photo='IMAGES')
     elif config_dict['BOT_PM']:
@@ -88,10 +71,10 @@ async def restart(client, message):
     osexecl(executable, executable, "-m", "bot")
 
 async def restart_notification():
-    await sleep(5) # Give DB time to initialize
+    await sleep(5) # DB settle avvadaniki
     now = datetime.now(timezone(config_dict['TIMEZONE']))
     
-    # 1. BroadCast to PM USERS
+    # 1. PM Users Notification
     if DATABASE_URL:
         try:
             db = DbManger()
@@ -99,39 +82,40 @@ async def restart_notification():
             if users:
                 for user_id in users:
                     try:
-                        await bot.send_message(chat_id=int(user_id), text="🚀 **Hey! The Bot is back Online and ready for your commands!**")
+                        await bot.send_message(chat_id=int(user_id), text="🚀 **Bot is back Online!**")
                         await sleep(0.5)
                     except:
                         continue
         except Exception as e:
-            LOGGER.error(f"Restart PM Notif Error: {e}")
+            LOGGER.error(e)
 
-    # 2. LOG GROUP Notification
+    # 2. Log Group Notification
     if log_id := config_dict.get('LEECH_LOG_ID'):
         for chat in log_id.split():
             try:
-                await bot.send_message(chat_id=int(chat.split(":")[0]), text="📢 **System Alert: Bot Restarted Successfully!**")
+                await bot.send_message(chat_id=int(chat.split(":")[0]), text="📢 **Bot Restarted Successfully!**")
             except Exception as e:
-                LOGGER.error(f"Group Log Error: {e}")
+                LOGGER.error(e)
 
-    # 3. Edit "Restarting..." Message
+    # 3. Edit old restart msg
     if await aiopath.isfile(".restartmsg"):
         with open(".restartmsg") as f:
             chat_id, msg_id = map(int, f)
         try:
             await bot.edit_message_text(chat_id=chat_id, message_id=msg_id, text=BotTheme('RESTART_SUCCESS', time=now.strftime('%I:%M:%S %p'), date=now.strftime('%d/%m/%y'), timz=config_dict['TIMEZONE'], version=get_version()))
-        except Exception as e:
-            LOGGER.error(f"Edit restart msg error: {e}")
+        except:
+            pass
         await aioremove(".restartmsg")
 
 async def main():
-    await gather(start_cleanup(), torrent_search.initiate_search_tools(), restart_notification(), search_images(), set_commands(bot))
+    # 'search_images()' tisesanu NameError rakunda
+    await gather(start_cleanup(), torrent_search.initiate_search_tools(), restart_notification(), set_commands(bot))
     loop = get_event_loop()
     loop.run_in_executor(None, start_aria2_listener)
     bot.add_handler(MessageHandler(start, filters=command(BotCommands.StartCommand) & private))
     bot.add_handler(MessageHandler(restart, filters=command(BotCommands.RestartCommand) & CustomFilters.sudo))
-    # ... rest of your handlers
-    LOGGER.info(f"Bot Started Successfully!")
+    bot.add_handler(MessageHandler(stats, filters=command(BotCommands.StatsCommand) & CustomFilters.authorized))
+    LOGGER.info("Bot Started!")
     signal(SIGINT, exit_clean_up)
 
 bot_run = bot.loop.run_until_complete
