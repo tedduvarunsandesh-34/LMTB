@@ -2,7 +2,7 @@ from time import time, monotonic
 from datetime import datetime
 from sys import executable
 from os import execl as osexecl
-from asyncio import create_subprocess_exec, gather, run as asyrun, get_event_loop
+from asyncio import create_subprocess_exec, gather, run as asyrun, get_event_loop, sleep
 from uuid import uuid4
 from base64 import b64decode
 from importlib import import_module, reload
@@ -176,19 +176,25 @@ async def bot_help(client, message):
 async def restart_notification():
     now = datetime.now(timezone(config_dict['TIMEZONE']))
     
-    # OWNER DM Notification
-    if owner_id := config_dict.get('OWNER_ID'):
+    # 1. BroadCast to ALL PM USERS (DM Message)
+    if DATABASE_URL:
         try:
-            await bot.send_message(chat_id=int(owner_id), text="✅ **Hey Master, I am back online and ready!**")
+            users = await DbManger().get_pm_users()
+            for user_id in users:
+                try:
+                    await bot.send_message(chat_id=int(user_id), text="🚀 **Bot has been Restarted and is now Online!**")
+                    await sleep(0.5) # Flood avoid cheyadaniki chinna gap
+                except Exception:
+                    continue
         except Exception as e:
-            LOGGER.error(f"Owner DM Error: {e}")
+            LOGGER.error(f"PM Broadcast Error: {e}")
 
-    # LOG GROUP Notification
+    # 2. LOG GROUP Notification
     if log_id := config_dict.get('LEECH_LOG_ID'):
         for chat in log_id.split():
             try:
                 actual_chat_id = chat.split(":")[0]
-                await bot.send_message(chat_id=int(actual_chat_id), text="🚀 **Bot Restarted Successfully in Group!**")
+                await bot.send_message(chat_id=int(actual_chat_id), text="📢 **System Alert: Bot Restarted Successfully!**")
             except Exception as e:
                 LOGGER.error(f"Group Log Error: {e}")
 
@@ -246,15 +252,9 @@ async def log_check():
                     if not (await chat.get_member(bot.me.id)).privileges.can_post_messages:
                         LOGGER.error(f"Not Connected Chat ID : {chat_id}, Make the Bot is Admin in Channel to Connect!")
                         continue
-                    if user and not (await chat.get_member(user.me.id)).privileges.can_post_messages:
-                        LOGGER.error(f"Not Connected Chat ID : {chat_id}, Make the User is Admin in Channel to Connect!")
-                        continue
                 elif chat.type == ChatType.SUPERGROUP:
                     if not (await chat.get_member(bot.me.id)).status in [ChatMemberStatus.OWNER, ChatMemberStatus.ADMINISTRATOR]:
                         LOGGER.error(f"Not Connected Chat ID : {chat_id}, Make the Bot is Admin in Group to Connect!")
-                        continue
-                    if user and not (await chat.get_member(user.me.id)).status in [ChatMemberStatus.OWNER, ChatMemberStatus.ADMINISTRATOR]:
-                        LOGGER.error(f"Not Connected Chat ID : {chat_id}, Make the User is Admin in Group to Connect!")
                         continue
                 LOGGER.info(f"Connected Chat ID : {chat_id}")
             except Exception as e:
