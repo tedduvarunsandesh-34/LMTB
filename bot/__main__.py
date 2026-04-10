@@ -171,7 +171,7 @@ async def bot_help(client, message):
 
 
 async def restart_notification():
-    now = datetime.now(timezone(config_dict['TIMEZONE']))
+    now=datetime.now(timezone(config_dict['TIMEZONE']))
     if await aiopath.isfile(".restartmsg"):
         with open(".restartmsg") as f:
             chat_id, msg_id = map(int, f)
@@ -188,13 +188,10 @@ async def restart_notification():
         except Exception as e:
             LOGGER.error(e)
 
-    user_count = 0
     if INCOMPLETE_TASK_NOTIFIER and DATABASE_URL:
         if notifier_dict := await DbManger().get_incomplete_tasks():
-            user_count = len(notifier_dict)
             for cid, data in notifier_dict.items():
                 msg = BotTheme('RESTART_SUCCESS', time=now.strftime('%I:%M:%S %p'), date=now.strftime('%d/%m/%y'), timz=config_dict['TIMEZONE'], version=get_version()) if cid == chat_id else BotTheme('RESTARTED')
-                msg += f"\n\n👥 <b>Total Active Users:</b> {user_count}"
                 msg += "\n\n⌬ <b><i>Incomplete Tasks!</i></b>"
                 for tag, links in data.items():
                     msg += f"\n➲ <b>User:</b> {tag}\n┖ <b>Tasks:</b>"
@@ -208,18 +205,8 @@ async def restart_notification():
                     await send_incompelete_task_message(cid, msg)
 
     if await aiopath.isfile(".restartmsg"):
-        final_msg = BotTheme('RESTART_SUCCESS', time=now.strftime('%I:%M:%S %p'), date=now.strftime('%d/%m/%y'), timz=config_dict['TIMEZONE'], version=get_version())
-        if user_count > 0:
-            final_msg += f"\n\n👥 <b>Total Active Users Found:</b> {user_count}"
-        
         try:
-            await bot.edit_message_text(chat_id=chat_id, message_id=msg_id, text=final_msg)
-            # Group ki kuda notify cheyalante
-            if config_dict['LEECH_LOG_ID']:
-                for log_chat in config_dict['LEECH_LOG_ID'].split():
-                    l_id = int(log_chat.split(":")[0])
-                    if l_id != chat_id:
-                        await bot.send_message(chat_id=l_id, text=f"⌬ <b>Bot Restarted Successfully!</b>\n\n👥 <b>Active Users Count:</b> {user_count}")
+            await bot.edit_message_text(chat_id=chat_id, message_id=msg_id, text=BotTheme('RESTART_SUCCESS', time=now.strftime('%I:%M:%S %p'), date=now.strftime('%d/%m/%y'), timz=config_dict['TIMEZONE'], version=get_version()))
         except Exception as e:
             LOGGER.error(e)
         await aioremove(".restartmsg")
