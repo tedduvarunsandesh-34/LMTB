@@ -40,7 +40,7 @@ async def add_aria2c_download(link, path, listener, filename, header, ratio, see
         try:
             from bot.helper.mirror_utils.download_utils.mega_download import add_mega_download
             # Added 'link' as the 5th argument to satisfy org_link requirement
-            return await add_mega_download(link, path, listener, filename, link)
+            return await add_mega_download(link, path, listener, filename)
         except ImportError:
             LOGGER.error("mega_download.py not found! Cannot handle Mega link.")
             await sendMessage(listener.message, "Mega helper module is missing in this bot version.")
