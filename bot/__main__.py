@@ -110,7 +110,6 @@ async def restart(client, message):
         if interval:
             interval[0].cancel()
     
-    # FIX: Use run_in_executor to handle synchronous clean_all properly
     loop = get_event_loop()
     await loop.run_in_executor(None, clean_all)
     
@@ -175,7 +174,24 @@ async def bot_help(client, message):
 
 
 async def restart_notification():
-    now=datetime.now(timezone(config_dict['TIMEZONE']))
+    now = datetime.now(timezone(config_dict['TIMEZONE']))
+    
+    # OWNER DM Notification
+    if owner_id := config_dict.get('OWNER_ID'):
+        try:
+            await bot.send_message(chat_id=int(owner_id), text="✅ **Hey Master, I am back online and ready!**")
+        except Exception as e:
+            LOGGER.error(f"Owner DM Error: {e}")
+
+    # LOG GROUP Notification
+    if log_id := config_dict.get('LEECH_LOG_ID'):
+        for chat in log_id.split():
+            try:
+                actual_chat_id = chat.split(":")[0]
+                await bot.send_message(chat_id=int(actual_chat_id), text="🚀 **Bot Restarted Successfully in Group!**")
+            except Exception as e:
+                LOGGER.error(f"Group Log Error: {e}")
+
     if await aiopath.isfile(".restartmsg"):
         with open(".restartmsg") as f:
             chat_id, msg_id = map(int, f)
@@ -248,26 +264,17 @@ async def log_check():
 async def main():
     await gather(start_cleanup(), torrent_search.initiate_search_tools(), restart_notification(), search_images(), set_commands(bot), log_check())
     
-    # FIX: Run the aria2 listener in an executor to avoid blocking the main async loop
     loop = get_event_loop()
     loop.run_in_executor(None, start_aria2_listener)
     
-    bot.add_handler(MessageHandler(
-        start, filters=command(BotCommands.StartCommand) & private))
-    bot.add_handler(CallbackQueryHandler(
-        token_callback, filters=regex(r'^pass')))
-    bot.add_handler(MessageHandler(
-        login, filters=command(BotCommands.LoginCommand) & private))
-    bot.add_handler(MessageHandler(log, filters=command(
-        BotCommands.LogCommand) & CustomFilters.sudo))
-    bot.add_handler(MessageHandler(restart, filters=command(
-        BotCommands.RestartCommand) & CustomFilters.sudo))
-    bot.add_handler(MessageHandler(ping, filters=command(
-        BotCommands.PingCommand) & CustomFilters.authorized & ~CustomFilters.blacklisted))
-    bot.add_handler(MessageHandler(bot_help, filters=command(
-        BotCommands.HelpCommand) & CustomFilters.authorized & ~CustomFilters.blacklisted))
-    bot.add_handler(MessageHandler(stats, filters=command(
-        BotCommands.StatsCommand) & CustomFilters.authorized & ~CustomFilters.blacklisted))
+    bot.add_handler(MessageHandler(start, filters=command(BotCommands.StartCommand) & private))
+    bot.add_handler(CallbackQueryHandler(token_callback, filters=regex(r'^pass')))
+    bot.add_handler(MessageHandler(login, filters=command(BotCommands.LoginCommand) & private))
+    bot.add_handler(MessageHandler(log, filters=command(BotCommands.LogCommand) & CustomFilters.sudo))
+    bot.add_handler(MessageHandler(restart, filters=command(BotCommands.RestartCommand) & CustomFilters.sudo))
+    bot.add_handler(MessageHandler(ping, filters=command(BotCommands.PingCommand) & CustomFilters.authorized & ~CustomFilters.blacklisted))
+    bot.add_handler(MessageHandler(bot_help, filters=command(BotCommands.HelpCommand) & CustomFilters.authorized & ~CustomFilters.blacklisted))
+    bot.add_handler(MessageHandler(stats, filters=command(BotCommands.StatsCommand) & CustomFilters.authorized & ~CustomFilters.blacklisted))
     LOGGER.info(f"WZML-X Bot [@{bot_name}] Started!")
     if user:
         LOGGER.info(f"WZ's User [@{user.me.username}] Ready!")
