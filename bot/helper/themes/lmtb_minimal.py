@@ -1,36 +1,37 @@
 #!/usr/bin/env python3
 class LMTBStyle:
-    # ----------------------
+    # ---------------------- #
     # async def start(client, message) ---> __main__.py
     ST_BN1_NAME = "📁 Repo"
     ST_BN1_URL = "https://t.me/ind_gamer_1"
     ST_BN2_NAME = "🔔 Updates"
     ST_BN2_URL = "https://t.me/All_animes_in_teluguu_vs"
-    ST_MSG = '''<i>This bot can mirror all your links|files|torrents to Google Drive or any rclone cloud or to telegram or to ddl servers BOT BY GOVAR X.</i>
-<b>Type {help_command} to get a list of available commands</b>'''
+    ST_MSG = '''<i>This bot can mirror all your links|files|torrents to Google Drive or any rclone cloud or to telegram or to ddl servers BOT BY GOVAR X.</i> <b>Type {help_command} to get a list of available commands</b>'''
     ST_BOTPM = '''<i>Now, This bot will send all your files and links here. Start Using ...</i>'''
     ST_UNAUTH = '''<i>You Are not authorized user! Deploy your own WZML-X Mirror-Leech bot</i>'''
     OWN_TOKEN_GENERATE = '''<b>Temporary Token is not yours!</b>\n\n<i>Kindly generate your own.</i>'''
     USED_TOKEN = '''<b>Temporary Token already used!</b>\n\n<i>Kindly generate a new one.</i>'''
     LOGGED_PASSWORD = '''<b>Bot Already Logged In via Password</b>\n\n<i>No Need to Accept Temp Tokens.</i>'''
     ACTIVATE_BUTTON = 'Activate Temporary Token'
-    TOKEN_MSG = '''<b><u>Generated Temporary Login Token!</u></b>
-<b>Temp Token:</b> <code>{token}</code>
-<b>Validity:</b> {validity}'''
-    # ---------------------
+    TOKEN_MSG = '''<b><u>Generated Temporary Login Token!</u></b> <b>Temp Token:</b> <code>{token}</code> <b>Validity:</b> {validity}'''
+    
+    # --------------------- #
     # async def token_callback(_, query): ---> __main__.py
     ACTIVATED = '✅️ Activated ✅'
-    # ---------------------
+    
+    # --------------------- #
     # async def login(_, message): --> __main__.py
     LOGGED_IN = '<b>Already Bot Login In!</b>'
     INVALID_PASS = '<b>Invalid Password!</b>\n\nKindly put the correct Password .'
     PASS_LOGGED = '<b>Bot Permanent Login Successfully!</b>'
     LOGIN_USED = '<b>Bot Login Usage :</b>\n\n<code>/cmd [password]</code>'
-    # ---------------------
+    
+    # --------------------- #
     # async def log(_, message): ---> __main__.py
     LOG_DISPLAY_BT = '📑 Log Display'
     WEB_PASTE_BT = '📨 Web Paste (SB)'
-    # ---------------------
+    
+    # --------------------- #
     # async def bot_help(client, message): ---> __main__.py
     BASIC_BT = 'Basic'
     USER_BT = 'Users'
@@ -42,34 +43,28 @@ class LMTBStyle:
     # async def stats(client, message):
     BOT_STATS = '''⌬ <b><i>BOT STATISTICS :</i></b>
 ┖ <b>Bot Uptime :</b> {bot_uptime}
-
 ┎ <b><i>RAM ( MEMORY ) :</i></b>
 ┃ {ram_bar} {ram}%
 ┖ <b>U :</b> {ram_u} | <b>F :</b> {ram_f} | <b>T :</b> {ram_t}
-
 ┎ <b><i>SWAP MEMORY :</i></b>
 ┃ {swap_bar} {swap}%
 ┖ <b>U :</b> {swap_u} | <b>F :</b> {swap_f} | <b>T :</b> {swap_t}
-
 ┎ <b><i>DISK :</i></b>
 ┃ {disk_bar} {disk}%
 ┃ <b>Total Disk Read :</b> {disk_read}
 ┃ <b>Total Disk Write :</b> {disk_write}
 ┖ <b>U :</b> {disk_u} | <b>F :</b> {disk_f} | <b>T :</b> {disk_t}
-    
-    '''
+'''
     SYS_STATS = '''⌬ <b><i>OS SYSTEM :</i></b>
 ┠ <b>OS Uptime :</b> {os_uptime}
 ┠ <b>OS Version :</b> {os_version}
 ┖ <b>OS Arch :</b> {os_arch}
-
 ⌬ <b><i>NETWORK STATS :</i></b>
 ┠ <b>Upload Data:</b> {up_data}
 ┠ <b>Download Data:</b> {dl_data}
 ┠ <b>Pkts Sent:</b> {pkt_sent}k
 ┠ <b>Pkts Received:</b> {pkt_recv}k
 ┖ <b>Total I/O Data:</b> {tl_data}
-
 ┎ <b>CPU :</b>
 ┃ {cpu_bar} {cpu}%
 ┠ <b>CPU Frequency :</b> {cpu_freq}
@@ -77,15 +72,14 @@ class LMTBStyle:
 ┠ <b>P-Core(s) :</b> {p_core} | <b>V-Core(s) :</b> {v_core}
 ┠ <b>Total Core(s) :</b> {total_core}
 ┖ <b>Usable CPU(s) :</b> {cpu_use}
-    '''
+'''
     REPO_STATS = '''⌬ <b><i>REPO STATISTICS :</i></b>
 ┠ <b>Bot Updated :</b> {last_commit}
 ┠ <b>Current Version :</b> {bot_version}
 ┠ <b>Latest Version :</b> {lat_version}
 ┖ <b>Last ChangeLog :</b> {commit_details}
-
 ⌬ <b>REMARKS :</b> <code>{remarks}</code>
-    '''
+'''
     BOT_LIMITS = '''⌬ <b><i>BOT LIMITATIONS :</i></b>
 ┠ <b>Direct Limit :</b> {DL} GB
 ┠ <b>Torrent Limit :</b> {TL} GB
@@ -95,33 +89,31 @@ class LMTBStyle:
 ┠ <b>Mega Limit :</b> {ML} GB
 ┠ <b>Clone Limit :</b> {CL} GB
 ┖ <b>Leech Limit :</b> {LL} GB
-
 ┎ <b>Token Validity :</b> {TV}
 ┠ <b>User Time Limit :</b> {UTI} / task
 ┠ <b>User Parallel Tasks :</b> {UT}
 ┖ <b>Bot Parallel Tasks :</b> {BT}
-    '''
-    # ---------------------
+'''
 
+    # --------------------- #
     # async def restart(client, message): ---> __main__.py
     RESTARTING = '<i>Restarting...</i>'
-    # ---------------------
 
+    # --------------------- #
     # async def restart_notification(): ---> __main__.py
-    RESTART_SUCCESS = '''⌬ <b><i>Restarted Successfully!
-    BOT BY GOVAR X!!!!! LOVE U BABE</i></b>
+    RESTART_SUCCESS = '''⌬ <b><i>Restarted Successfully! BOT BY GOVAR X!!!!! LOVE U BABE</i></b>
 ┠ <b>Date:</b> {date}
 ┠ <b>Time:</b> {time}
 ┠ <b>TimeZone:</b> {timz}
 ┖ <b>Version:</b> {version}'''
     RESTARTED = '''⌬ <b><i>Bot Restarted! BY GOVAR LOVE U BABE!!!!</i></b>'''
-    # ---------------------
 
+    # --------------------- #
     # async def ping(client, message): ---> __main__.py
     PING = '<i>Starting Ping..</i>'
     PING_VALUE = '<b>Pong</b>\n<code>{value} ms..</code>'
-    # ---------------------
 
+    # --------------------- #
     # async def onDownloadStart(self): --> tasks_listener.py
     LINKS_START = """<b><i>Task Started</i></b>
 ┠ <b>Mode:</b> {Mode}
@@ -131,7 +123,7 @@ class LMTBStyle:
 ------------------------------------------
 {Source}
 ------------------------------------------\n\n"""
-    
+
     # async def __msg_to_reply(self): ---> pyrogramEngine.py
     PM_START =            "➲ <b><u>Task Started :</u></b>\n┃\n┖ <b>Link:</b> <a href='{msg_link}'>Click Here</a>"
     L_LOG_START =           "➲ <b><u>Leech Started :</u></b>\n┃\n┠ <b>User :</b> {mention} ( #ID{uid} )\n┖ <b>Source :</b> <a href='{msg_link}'>Click Here</a>"
@@ -149,7 +141,7 @@ class LMTBStyle:
     PM_BOT_MSG =            '➲ <b><i>File(s) [have been Sent above]</i></b>'
     L_BOT_MSG =             '➲ <b><i>File(s) [have been Sent to Bot PM] [BOT BY GOVAR X] (Private)</i></b>'
     L_LL_MSG =              '➲ <b><i>File(s) [have been Sent. Access via Links...]</i></b>\n'
-    
+
     # ----- MIRROR -------
     M_TYPE =                '┠ <b>Type: </b>{Mimetype}\n'
     M_SUBFOLD =             '┠ <b>SubFolders: </b>{Folder}\n'
@@ -157,6 +149,7 @@ class LMTBStyle:
     RCPATH =                '┠ <b>Path: </b><code>{RCpath}</code>\n'
     M_CC =                  '┖ <b>By: </b>{Tag}\n\n'
     M_BOT_MSG =             '➲ <b><i>Link(s) have been Sent to Bot PM (Private)</i></b>'
+
     # ----- BUTTONS -------
     CLOUD_LINK =      '☁️ Cloud Link'
     SAVE_MSG =        '📨 Save Message'
@@ -170,16 +163,15 @@ class LMTBStyle:
     CHECK_LL =        '🖇 View in Links Log'
     MEDIAINFO_LINK =  '📃 MediaInfo'
     SCREENSHOTS =     '🖼 ScreenShots'
-    # ---------------------
-    # ---------------------
+
+    # --------------------- #
+    # --------------------- #
     # def get_readable_message(): ---> bot_utilis.py
     ####--------OVERALL MSG HEADER----------
-    STATUS_NAME = (
-        '<b><i>{Name}</i></b>
-    )
+    STATUS_NAME = ('<b><i>{Name}</i></b> )')
+
     #####---------PROGRESSIVE STATUS-------
-    ####---------PROGRESSIVE STATUS-------
-    BAR =               '\n{Bar}'
+    BAR =               '\n✨ {Bar}'
     PROCESSED =         '\n┌ 📂 <b>Data:</b> <code>{Processed}</code>'
     STATUS =            '\n├ 🌀 <b>Status:</b> <a href="{Url}"><b>{Status}</b></a>'
     ETA =               '\n├ ⏳ <b>Remaining:</b> <code>{Eta}</code>'
@@ -223,13 +215,12 @@ class LMTBStyle:
     PREVIOUS = '◀️'
     REFRESH =  '🔄 P-{Page}'
     NEXT =     '▶️'
-    
-    # ---------------------
 
-    #STOP_DUPLICATE_MSG: ---> clone.py, aria2_listener.py, task_manager.py
+    # --------------------- #
+    # STOP_DUPLICATE_MSG: ---> clone.py, aria2_listener.py, task_manager.py
     STOP_DUPLICATE = 'File/Folder is already available in Drive.\nHere are {content} list results:'
-    # ---------------------
 
+    # --------------------- #
     # async def countNode(_, message): ----> gd_count.py
     COUNT_MSG = '<b>Counting:</b> <code>{LINK}</code>'
     COUNT_NAME = '<b><i>{COUNT_NAME}</i></b>\n┃\n'
@@ -238,26 +229,25 @@ class LMTBStyle:
     COUNT_SUB =  '┠ <b>SubFolders: </b>{COUNT_SUB}\n'
     COUNT_FILE = '┠ <b>Files: </b>{COUNT_FILE}\n'
     COUNT_CC =   '┖ <b>By: </b>{COUNT_CC}\n'
-    # ---------------------
 
+    # --------------------- #
     # LIST ---> gd_list.py
     LIST_SEARCHING = '<b>Searching for <i>{NAME}</i></b>'
     LIST_FOUND = '<b>Found {NO} result for <i>{NAME}</i></b>'
     LIST_NOT_FOUND = 'No result found for <i>{NAME}</i>'
-    # ---------------------
 
+    # --------------------- #
     # async def mirror_status(_, message): ----> status.py
     NO_ACTIVE_DL = '''<i>No Active Downloads!</i>
-    
 ⌬ <b><i>Bot Stats</i></b>
 ┠ <b>CPU:</b> {cpu}% | <b>F:</b> {free} [{free_p}%]
 ┖ <b>RAM:</b> {ram} | <b>UPTIME:</b> {uptime}
-    '''
-    # ---------------------
+'''
 
-    # USER Setting --> user_setting.py 
+    # --------------------- #
+    # USER Setting --> user_setting.py
     USER_SETTING = '''㊂ <b><u>User Settings :</u></b>
-         ━━━━━━━✦✗✦━━━━━━━     
+━━━━━━━✦✗✦━━━━━━━
 ┎<b> Name :</b> {NAME} ( <code>{ID}</code> )
 ┠<b> Username :</b> {USERNAME}
 ┠<b> Telegram DC :</b> {DC}
@@ -267,7 +257,7 @@ class LMTBStyle:
 • <b>-s</b> or <b>-set</b>: Set Directly via Arg'''
 
     UNIVERSAL = '''㊂ <b><u>Universal Settings : {NAME}</u></b>
-          ━━━━━━━✦✗✦━━━━━━━
+━━━━━━━✦✗✦━━━━━━━
 ┎<b> YT-DLP Options :</b> <b><code>{YT}</code></b>
 ┠<b> Daily Tasks :</b> <code>{DT}</code> per day
 ┠<b> Last Bot Used :</b> <code>{LAST_USED}</code>
@@ -277,7 +267,7 @@ class LMTBStyle:
 ┖<b> User Bot PM :</b> <code>{BOT_PM}</code>'''
 
     MIRROR = '''㊂ <b><u>Mirror/Clone Settings : {NAME}</u></b>
-          ━━━━━━━✦✗✦━━━━━━━
+━━━━━━━✦✗✦━━━━━━━
 ┎<b> RClone Config :</b> <i>{RCLONE}</i>
 ┠<b> Mirror Prefix :</b> <code>{MPREFIX}</code>
 ┠<b> Mirror Suffix :</b> <code>{MSUFFIX}</code>
@@ -288,7 +278,6 @@ class LMTBStyle:
 ┖<b> Daily Mirror :</b> <code>{DM}</code> per day'''
 
     LEECH = '''㊂ <b><u>Leech Settings for {NAME}</u></b>
-
 ┎<b> Daily Leech : </b><code>{DL}</code> per day
 ┠<b> Leech Type :</b> <i>{LTYPE}</i>
 ┠<b> Custom Thumbnail :</b> <i>{THUMB}</i>
